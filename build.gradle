@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.11.2'
+}
+
+group = 'ru.khayrullin'
+version = '1.0-SNAPSHOT'
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+def allureVersion = "2.23.0"
+allure {
+    report {
+        version.set(allureVersion)
+    }
+    adapter { // отвечает за появление папки build/allure-results
+        aspectjWeaver.set(true) //обработка аннотации @Step
+        frameworks {
+            junit5 { //название фреймворка
+                adapterVersion.set(allureVersion) //версия интеграции фреймворка и Allure
+            }
+        }
+    }
+}
+
+
+dependencies {
+    testImplementation (
+            'org.junit.jupiter:junit-jupiter:5.9.3',
+            'com.codeborne:selenide:6.16.0',
+            'org.slf4j:slf4j-simple:2.0.7',
+            'com.github.javafaker:javafaker:1.0.2',
+            'io.qameta.allure:allure-selenide:2.23.0',
+    )
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test) {
+    systemProperties(System.getProperties())
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task mainPage_test(type: Test){
+    useJUnitPlatform{
+        includeTags("mainpage")
+    }
+}
+
+task search_test(type: Test){
+    useJUnitPlatform{
+        includeTags("search")
+    }
+}
+
+task smoke_test(type: Test) {
+    useJUnitPlatform {
+        includeTags("smoke")
+    }
+}
